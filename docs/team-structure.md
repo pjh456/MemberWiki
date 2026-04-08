@@ -123,7 +123,9 @@
 👉 要求：
 
 - 统一组件规范
-- 使用 TypeScript 类型约束
+- 前端运行时在 Bun 或 Deno 中二选一（默认优先 Bun），不使用传统 Node.js 作为开发运行时
+- 使用 TypeScript 类型约束，不新增 JavaScript 业务文件
+- 每次提交前通过 typechecker，发布前通过 build
 - 避免重复组件开发
 
 ---
@@ -204,6 +206,8 @@
 - 接口先行（先定义 API 再开发）
 - 小步提交（避免大规模修改）
 - 每周至少进行一次联调
+- 前端 PR 合并前必须通过 TypeScript 类型检查（`bun run typecheck` 或 `deno task typecheck`）
+- 前端上线前必须完成构建（`bun run build` 或 `deno task build`）
 
 ---
 

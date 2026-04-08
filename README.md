@@ -1,6 +1,9 @@
 # 🏛️ 名人堂百科
 
 [![React](https://img.shields.io/badge/React-18.x-blue?logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Bun](https://img.shields.io/badge/Bun-Preferred-000000?logo=bun)](https://bun.sh/)
+[![Deno](https://img.shields.io/badge/Deno-Optional-000000?logo=deno)](https://deno.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![SQLite](https://img.shields.io/badge/SQLite-3-003B57?logo=sqlite)](https://www.sqlite.org/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
@@ -23,6 +26,7 @@
 
 ### 前端 (Frontend)
 - **核心框架**：React + Vite + TypeScript
+- **运行时与包管理**：Bun 或 Deno（默认优先 Bun；若项目对子进程权限、沙箱和标准库有明确要求可选 Deno）
 - **样式方案**：TailwindCSS / (按需引入的 React UI 组件库)
 
 ### 后端 (Backend)
@@ -55,7 +59,7 @@ MemberWiki/
 👉[名人堂百科开发指南 (docs/dev-map.md)](./docs/dev-map.md)
 
 ### 2. 环境准备
-- Node.js (v18+)
+- Bun (推荐) 或 Deno（二选一）
 - Python (v3.10+)
 - Git
 
@@ -70,8 +74,13 @@ cd MemberWiki
 **启动前端：**
 ```bash
 cd frontend
-npm install
-npm run dev
+# Bun 方案（默认）
+bun install
+bun run dev
+
+# Deno 方案（按项目要求启用）
+# deno task install
+# deno task dev
 ```
 
 **启动后端：**
@@ -92,11 +101,15 @@ uvicorn main:app --reload
 2. **提交规范**：Commit Message 请尽量清晰，标明修改内容（如 `feat: 新增首页搜索框组件`）。
 3. **代码规范**：
    - 后端 Python 代码需包含标准化的 Docstring（推荐 Google 风格），变量名遵循 PEP8 规范。
-   - 前端注意组件拆分，合理使用 TypeScript 的类型定义。
-4. **版本控制清单**：
+   - 前端仅使用 TypeScript，不提交新的 JavaScript 业务文件；注意组件拆分并合理定义类型。
+4. **质量门禁（前端）**：
+   - 所有 PR 在合并前必须通过 TypeScript 类型检查。
+   - 上线部署前必须先执行构建产物生成（build），并确保构建成功。
+   - 推荐命令：`bun run typecheck && bun run build`（或等价 `deno task typecheck && deno task build`）。
+5. **版本控制清单**：
    - 🚫 **禁止** 提交 `node_modules/`, `__pycache__/` 等缓存文件。
    - 🚫 **禁止** 提交包含敏感信息的 `.env` 密钥文件，请提交含注释的 `.env.example`。
-   - ✅ **务必** 提交前端的 `package-lock.json`（或 yarn/pnpm lock 文件）以锁定依赖版本。
+   - ✅ **务必** 提交前端依赖锁文件（如 `bun.lockb` 或 `deno.lock`）以锁定版本。
 
 ## 📄 许可证
 
