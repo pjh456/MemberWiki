@@ -1,0 +1,972 @@
+openapi: 3.0.3
+info:
+  title: MemberWiki API
+  version: 1.0.0
+  description: |
+    名人堂百科项目 API 定义。
+    该文档用于前后端并行开发与联调，遵循 REST 风格与统一错误模型。
+servers:
+  - url: /api/v1
+    description: Default API v1 server
+tags:
+  - name: System
+  - name: Auth
+  - name: Users
+  - name: Profiles
+  - name: Reviews
+  - name: Search
+  - name: Uploads
+
+security:
+  - bearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [System]
+      summary: 健康检查
+      security: []
+      responses:
+        "200":
+          description: 服务正常
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: 用户注册
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: 账号密码登录
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/send-code:
+    post:
+      tags: [Auth]
+      summary: 发送邮箱或短信验证码
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendCodeRequest"
+      responses:
+        "202":
+          description: 已受理
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: code sent
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /auth/verify-code:
+    post:
+      tags: [Auth]
+      summary: 验证注册或登录验证码
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyCodeRequest"
+      responses:
+        "200":
+          description: 验证通过并登录
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: 刷新访问令牌
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        "200":
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthTokenResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/me:
+    get:
+      tags: [Users]
+      summary: 获取当前登录用户信息
+      responses:
+        "200":
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    patch:
+      tags: [Users]
+      summary: 更新当前登录用户基础信息
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMeRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /users:
+    get:
+      tags: [Users]
+      summary: 管理员分页查询用户
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: 姓名/邮箱/手机号关键字
+        - in: query
+          name: role
+          schema:
+            $ref: "#/components/schemas/UserRole"
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedUsers"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /users/{user_id}/role:
+    patch:
+      tags: [Users]
+      summary: 管理员修改用户角色
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [role]
+              properties:
+                role:
+                  $ref: "#/components/schemas/UserRole"
+      responses:
+        "200":
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /profiles/me/draft:
+    get:
+      tags: [Profiles]
+      summary: 获取我的草稿资料
+      responses:
+        "200":
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileDraft"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Profiles]
+      summary: 保存我的草稿资料（全量覆盖）
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpsertProfileDraftRequest"
+      responses:
+        "200":
+          description: 保存成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProfileDraft"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /profiles/me/submit-review:
+    post:
+      tags: [Profiles]
+      summary: 提交草稿进入审核
+      responses:
+        "202":
+          description: 已进入审核
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewTask"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /profiles/{profile_id}:
+    get:
+      tags: [Profiles]
+      summary: 获取公开资料详情
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/ProfileId"
+      responses:
+        "200":
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublicProfile"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /profiles/{profile_id}/timeline:
+    get:
+      tags: [Profiles]
+      summary: 获取资料时间线（版本与审核记录）
+      parameters:
+        - $ref: "#/components/parameters/ProfileId"
+      responses:
+        "200":
+          description: 获取成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ProfileTimelineItem"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /reviews:
+    get:
+      tags: [Reviews]
+      summary: 管理员查看审核任务列表
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - in: query
+          name: status
+          schema:
+            $ref: "#/components/schemas/ReviewStatus"
+        - in: query
+          name: reviewer_id
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedReviews"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+
+  /reviews/{review_id}/approve:
+    post:
+      tags: [Reviews]
+      summary: 管理员通过审核
+      parameters:
+        - $ref: "#/components/parameters/ReviewId"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                  maxLength: 500
+      responses:
+        "200":
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewTask"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /reviews/{review_id}/reject:
+    post:
+      tags: [Reviews]
+      summary: 管理员驳回审核
+      parameters:
+        - $ref: "#/components/parameters/ReviewId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason:
+                  type: string
+                  minLength: 2
+                  maxLength: 500
+      responses:
+        "200":
+          description: 操作成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReviewTask"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+
+  /search/members:
+    get:
+      tags: [Search]
+      summary: 多条件搜索成员
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/PageSize"
+        - in: query
+          name: keyword
+          schema:
+            type: string
+          description: 姓名/履历/奖项关键词
+        - in: query
+          name: award_keyword
+          schema:
+            type: string
+        - in: query
+          name: active_days
+          schema:
+            type: integer
+            minimum: 0
+          description: 最近 N 天有更新
+        - in: query
+          name: sort_by
+          schema:
+            type: string
+            enum: [updated_at, award_count, name]
+          default: updated_at
+        - in: query
+          name: sort_order
+          schema:
+            type: string
+            enum: [asc, desc]
+          default: desc
+      responses:
+        "200":
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedSearchResults"
+
+  /uploads/proof:
+    post:
+      tags: [Uploads]
+      summary: 上传证明材料（图片/PDF）
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                profile_draft_id:
+                  type: integer
+      responses:
+        "201":
+          description: 上传成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadedFile"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "413":
+          description: 文件过大
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /uploads/{file_id}:
+    delete:
+      tags: [Uploads]
+      summary: 删除已上传的证明材料
+      parameters:
+        - $ref: "#/components/parameters/FileId"
+      responses:
+        "204":
+          description: 删除成功
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    Page:
+      in: query
+      name: page
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      in: query
+      name: page_size
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    UserId:
+      in: path
+      name: user_id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    ProfileId:
+      in: path
+      name: profile_id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    ReviewId:
+      in: path
+      name: review_id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+    FileId:
+      in: path
+      name: file_id
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+
+  responses:
+    BadRequest:
+      description: 请求参数错误
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Unauthorized:
+      description: 未认证
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Conflict:
+      description: 资源状态冲突
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    RateLimited:
+      description: 请求频率受限
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    UserRole:
+      type: string
+      enum: [member, admin]
+
+    ReviewStatus:
+      type: string
+      enum: [draft, pending, approved, rejected]
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: page_size must be <= 100
+            details:
+              type: object
+              additionalProperties: true
+            request_id:
+              type: string
+              example: req_01HXYZABCDEF
+
+    RegisterRequest:
+      type: object
+      required: [name, password]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: '^[0-9+\-]{6,20}$'
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+        code:
+          type: string
+          description: 若启用验证码注册则必填
+
+    LoginRequest:
+      type: object
+      required: [account, password]
+      properties:
+        account:
+          type: string
+          description: 邮箱或手机号
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+
+    SendCodeRequest:
+      type: object
+      required: [channel, target, purpose]
+      properties:
+        channel:
+          type: string
+          enum: [email, sms]
+        target:
+          type: string
+          description: 邮箱地址或手机号
+        purpose:
+          type: string
+          enum: [register, login, reset_password]
+
+    VerifyCodeRequest:
+      type: object
+      required: [channel, target, code, purpose]
+      properties:
+        channel:
+          type: string
+          enum: [email, sms]
+        target:
+          type: string
+        code:
+          type: string
+          minLength: 4
+          maxLength: 8
+        purpose:
+          type: string
+          enum: [register, login, reset_password]
+
+    AuthTokenResponse:
+      type: object
+      required: [access_token, refresh_token, token_type, expires_in, user]
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          example: 3600
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, name, role, created_at]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        avatar_url:
+          type: string
+          format: uri
+        role:
+          $ref: "#/components/schemas/UserRole"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    UpdateMeRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 50
+        avatar_url:
+          type: string
+          format: uri
+
+    PaginatedUsers:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/User"
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+
+    ProfileDraft:
+      type: object
+      required:
+        [id, user_id, review_status, bio, experiences, awards, updated_at]
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        review_status:
+          $ref: "#/components/schemas/ReviewStatus"
+        bio:
+          type: string
+          maxLength: 2000
+        experiences:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExperienceItem"
+        awards:
+          type: array
+          items:
+            $ref: "#/components/schemas/AwardItem"
+        proof_files:
+          type: array
+          items:
+            $ref: "#/components/schemas/UploadedFile"
+        updated_at:
+          type: string
+          format: date-time
+
+    UpsertProfileDraftRequest:
+      type: object
+      required: [bio, experiences, awards]
+      properties:
+        bio:
+          type: string
+          maxLength: 2000
+        experiences:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExperienceItem"
+        awards:
+          type: array
+          items:
+            $ref: "#/components/schemas/AwardItem"
+        proof_file_ids:
+          type: array
+          items:
+            type: integer
+
+    ExperienceItem:
+      type: object
+      required: [title, organization, start_date]
+      properties:
+        title:
+          type: string
+          maxLength: 100
+        organization:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 1000
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    AwardItem:
+      type: object
+      required: [name, year]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        level:
+          type: string
+          maxLength: 50
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        description:
+          type: string
+          maxLength: 500
+
+    PublicProfile:
+      type: object
+      required: [id, user, bio, experiences, awards, updated_at]
+      properties:
+        id:
+          type: integer
+        user:
+          $ref: "#/components/schemas/User"
+        bio:
+          type: string
+        experiences:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExperienceItem"
+        awards:
+          type: array
+          items:
+            $ref: "#/components/schemas/AwardItem"
+        updated_at:
+          type: string
+          format: date-time
+
+    ReviewTask:
+      type: object
+      required: [id, profile_id, submitter_id, status, created_at, updated_at]
+      properties:
+        id:
+          type: integer
+        profile_id:
+          type: integer
+        submitter_id:
+          type: integer
+        reviewer_id:
+          type: integer
+        status:
+          $ref: "#/components/schemas/ReviewStatus"
+        reject_reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PaginatedReviews:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ReviewTask"
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+
+    ProfileTimelineItem:
+      type: object
+      required: [version, status, operator_name, created_at]
+      properties:
+        version:
+          type: integer
+        status:
+          $ref: "#/components/schemas/ReviewStatus"
+        operator_name:
+          type: string
+        comment:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    SearchResultItem:
+      type: object
+      required: [profile_id, user_name, bio_highlight, award_count, updated_at]
+      properties:
+        profile_id:
+          type: integer
+        user_name:
+          type: string
+        bio_highlight:
+          type: string
+        award_count:
+          type: integer
+        updated_at:
+          type: string
+          format: date-time
+
+    PaginatedSearchResults:
+      type: object
+      required: [items, page, page_size, total]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SearchResultItem"
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total:
+          type: integer
+
+    UploadedFile:
+      type: object
+      required: [id, file_name, file_url, mime_type, size, created_at]
+      properties:
+        id:
+          type: integer
+        file_name:
+          type: string
+        file_url:
+          type: string
+          format: uri
+        mime_type:
+          type: string
+          example: application/pdf
+        size:
+          type: integer
+          description: 字节数
+        created_at:
+          type: string
+          format: date-time
