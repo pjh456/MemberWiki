@@ -9,7 +9,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
 
 > **“以去中心化的更新，构建中心化的记忆。”**
-> 
+>
 > 本项目是一个面向社团与组织的“名人堂”百科系统，旨在为当届与往届成员提供一个展示履历、促进交流、跨届合作的平台。本项目同时作为社团内部全栈开发的 **核心练手项目**。
 
 ## ✨ 核心特性
@@ -25,17 +25,20 @@
 本项目采取前后端分离架构：
 
 ### 前端 (Frontend)
+
 - **核心框架**：React + Vite + TypeScript
 - **运行时与包管理**：Bun 或 Deno（默认优先 Bun；若项目对子进程权限、沙箱和标准库有明确要求可选 Deno）
 - **样式方案**：TailwindCSS / (按需引入的 React UI 组件库)
 
 ### 后端 (Backend)
+
 - **核心框架**：Python + FastAPI
 - **数据持久化**：SQLite + ORM (如 SQLAlchemy / SQLModel)
 - **缓存引擎**：Redis (可选，视并发压力接入)
 - **测试框架**：Pytest
 
 ### 运维与部署 (DevOps)
+
 - Nginx (反向代理与静态资源分发)
 - Docker & Docker Compose
 
@@ -63,14 +66,17 @@ MemberWiki/
 ## 🚀 快速开始
 
 ### 1. 阅读开发指南 (必读)
+
 在编写任何代码之前，请 **务必** 阅读项目总体开发指南与路线图：
 👉 [文档总索引 (docs/README.md)](./docs/README.md)
 
 其中 API 开发请优先阅读：
+
 - [API 开发约定 (docs/api/README.md)](./docs/api/README.md)
 - [OpenAPI 规范 (docs/api/openapi.yaml)](./docs/api/openapi.yaml)
 
 后端与协作开发建议同时阅读：
+
 - [数据库文档总览 (docs/database/README.md)](./docs/database/README.md)
 - [核心表结构 (docs/database/schema.md)](./docs/database/schema.md)
 - [系统架构说明 (docs/architecture/README.md)](./docs/architecture/README.md)
@@ -79,6 +85,7 @@ MemberWiki/
 - [协作流程 (docs/contributing.md)](./docs/contributing.md)
 
 ### 2. 环境准备
+
 - Bun (推荐) 或 Deno（二选一）
 - Python (v3.10+)
 - Git
@@ -86,12 +93,14 @@ MemberWiki/
 ### 3. 本地运行
 
 **克隆仓库：**
+
 ```bash
 git clone https://github.com/pjh456/MemberWiki.git
 cd MemberWiki
 ```
 
 **启动前端：**
+
 ```bash
 cd frontend
 # Bun 方案（默认）
@@ -104,6 +113,7 @@ bun run dev
 ```
 
 **启动后端：**
+
 ```bash
 cd backend
 # 建议使用虚拟环境，如 venv 或 conda

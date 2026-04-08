@@ -5,19 +5,23 @@
 ## 架构分层
 
 1. 展示层（Frontend）
+
 - React + TypeScript 页面与组件
 - 通过 REST API 调用后端服务
 
 2. 应用层（Backend API）
+
 - FastAPI 路由、鉴权、参数校验
 - 用户、百科、审核、搜索、上传等业务逻辑
 
 3. 数据层（Database）
+
 - SQLite 存储核心业务数据
 - ORM 映射与查询
 - 按并发压力可选引入 Redis 缓存
 
 4. 交付层（Ops）
+
 - Nginx 反向代理与静态资源分发
 - Docker/Compose 打包与部署
 
