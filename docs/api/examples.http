@@ -1,0 +1,85 @@
+### Health
+GET http://localhost:8000/api/v1/health
+
+### Register
+POST http://localhost:8000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "name": "Alice",
+  "email": "alice@example.com",
+  "password": "Passw0rd!23",
+  "code": "123456"
+}
+
+### Login
+POST http://localhost:8000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "account": "alice@example.com",
+  "password": "Passw0rd!23"
+}
+
+### Save token (manually replace)
+@token = REPLACE_WITH_ACCESS_TOKEN
+
+### Get current user
+GET http://localhost:8000/api/v1/users/me
+Authorization: Bearer {{token}}
+
+### Save my profile draft
+PUT http://localhost:8000/api/v1/profiles/me/draft
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "bio": "后端开发，专注分布式系统与工程实践。",
+  "experiences": [
+    {
+      "title": "技术负责人",
+      "organization": "MemberWiki",
+      "description": "负责后端架构与接口设计",
+      "start_date": "2025-09-01",
+      "end_date": "2026-06-30"
+    }
+  ],
+  "awards": [
+    {
+      "name": "校级创新竞赛一等奖",
+      "level": "校级",
+      "year": 2025,
+      "description": "项目总负责"
+    }
+  ],
+  "proof_file_ids": []
+}
+
+### Submit review
+POST http://localhost:8000/api/v1/profiles/me/submit-review
+Authorization: Bearer {{token}}
+
+### Search members
+GET http://localhost:8000/api/v1/search/members?keyword=技术&page=1&page_size=20&sort_by=updated_at&sort_order=desc
+
+### Admin review list
+GET http://localhost:8000/api/v1/reviews?page=1&page_size=20&status=pending
+Authorization: Bearer {{token}}
+
+### Approve review
+POST http://localhost:8000/api/v1/reviews/1/approve
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "comment": "资料完整，审核通过"
+}
+
+### Reject review
+POST http://localhost:8000/api/v1/reviews/2/reject
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "reason": "奖项证明材料不完整，请补充后重新提交"
+}
