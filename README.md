@@ -46,7 +46,10 @@ MemberWiki/
 ├── frontend/             # 前端 React 项目目录
 ├── backend/              # 后端 FastAPI 项目目录
 ├── docs/                 # 项目文档目录
-│   └── dev-map.md        # 🌟 核心开发指南与需求路线图
+│   ├── README.md         # 文档总索引（统一入口）
+│   ├── planning/         # 需求与开发路线
+│   ├── team/             # 团队分工与协作规范
+│   └── api/              # 可直接开发的 API 文档
 ├── deploy/               # 部署相关配置 (Nginx配置, Dockerfile等)
 ├── .gitignore
 └── README.md
@@ -56,7 +59,11 @@ MemberWiki/
 
 ### 1. 阅读开发指南 (必读)
 在编写任何代码之前，请 **务必** 阅读项目总体开发指南与路线图：
-👉[名人堂百科开发指南 (docs/dev-map.md)](./docs/dev-map.md)
+👉 [文档总索引 (docs/README.md)](./docs/README.md)
+
+其中 API 开发请优先阅读：
+- [API 开发约定 (docs/api/README.md)](./docs/api/README.md)
+- [OpenAPI 规范 (docs/api/openapi.yaml)](./docs/api/openapi.yaml)
 
 ### 2. 环境准备
 - Bun (推荐) 或 Deno（二选一）
