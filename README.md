@@ -49,7 +49,12 @@ MemberWiki/
 │   ├── README.md         # 文档总索引（统一入口）
 │   ├── planning/         # 需求与开发路线
 │   ├── team/             # 团队分工与协作规范
-│   └── api/              # 可直接开发的 API 文档
+│   ├── architecture/     # 系统架构说明
+│   ├── database/         # 数据库设计与迁移规范
+│   ├── api/              # 可直接开发的 API 文档
+│   ├── testing/          # 测试策略与发布检查
+│   ├── deploy/           # 部署与运维文档
+│   └── contributing.md   # 协作流程与提交规范
 ├── deploy/               # 部署相关配置 (Nginx配置, Dockerfile等)
 ├── .gitignore
 └── README.md
@@ -64,6 +69,14 @@ MemberWiki/
 其中 API 开发请优先阅读：
 - [API 开发约定 (docs/api/README.md)](./docs/api/README.md)
 - [OpenAPI 规范 (docs/api/openapi.yaml)](./docs/api/openapi.yaml)
+
+后端与协作开发建议同时阅读：
+- [数据库文档总览 (docs/database/README.md)](./docs/database/README.md)
+- [核心表结构 (docs/database/schema.md)](./docs/database/schema.md)
+- [系统架构说明 (docs/architecture/README.md)](./docs/architecture/README.md)
+- [测试策略 (docs/testing/README.md)](./docs/testing/README.md)
+- [部署与运维 (docs/deploy/README.md)](./docs/deploy/README.md)
+- [协作流程 (docs/contributing.md)](./docs/contributing.md)
 
 ### 2. 环境准备
 - Bun (推荐) 或 Deno（二选一）
