@@ -1,0 +1,24 @@
+### 健康检查
+GET http://localhost:8000/api/v1/health
+
+### 用户注册
+POST http://localhost:8000/api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "member@example.com",
+  "password": "StrongPass123!",
+  "display_name": "张三"
+}
+
+### 用户登录
+POST http://localhost:8000/api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "member@example.com",
+  "password": "StrongPass123!"
+}
+
+### 成员搜索
+GET http://localhost:8000/api/v1/profiles?keyword=机器学习&page=1&page_size=20
