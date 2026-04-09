@@ -1,0 +1,19 @@
+### Diff template
+*.patch
+*.diff
+
+### Example user template template
+### Example user template
+
+# IntelliJ project files
+.idea
+*.iml
+out
+gen
+
+.env
+__pycache__/
+*.pyc
+backend/data/*.db
+
+alembic.ini
