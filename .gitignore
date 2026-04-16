@@ -11,6 +11,7 @@
 out
 gen
 
+.venv
 .env
 __pycache__/
 *.pyc
