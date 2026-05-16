@@ -11,6 +11,35 @@
 3. 命名规范建议：`YYYYMMDDHHMM_<change_summary>`。
 4. 涉及删字段、改类型等破坏性变更，必须提供 `downgrade`。
 
+## 本地使用
+
+仓库提交 `backend/alembic.ini.example` 作为共享模板。
+
+首次使用可复制模板：
+
+```powershell
+cd backend
+Copy-Item alembic.ini.example alembic.ini
+.\.venv\Scripts\python.exe -m alembic upgrade head
+```
+
+也可以不复制配置，直接指定模板运行：
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m alembic -c alembic.ini.example upgrade head
+```
+
+验证迁移可回滚时，至少执行：
+
+```powershell
+cd backend
+.\.venv\Scripts\python.exe -m alembic -c alembic.ini.example downgrade base
+.\.venv\Scripts\python.exe -m alembic -c alembic.ini.example upgrade head
+```
+
+生产、测试环境的真实数据库连接串不得写入 `alembic.ini`；需要通过 `DATABASE_URL` 环境变量覆盖。
+
 ## 发布流程
 
 1. 提交迁移脚本与文档更新（`schema.md`）。

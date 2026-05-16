@@ -25,6 +25,15 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 
+def ensure_sqlite_parent_dir(url: str | None) -> None:
+    if not url or not url.startswith("sqlite:///") or url == "sqlite:///:memory:":
+        return
+
+    db_path = Path(url.removeprefix("sqlite:///"))
+    if db_path.parent != Path("."):
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+
+
 def run_migrations_offline() -> None:
     url = config.get_main_option("sqlalchemy.url")
     context.configure(
@@ -38,6 +47,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
+    ensure_sqlite_parent_dir(config.get_main_option("sqlalchemy.url"))
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",

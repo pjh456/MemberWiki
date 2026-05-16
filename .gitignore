@@ -10,6 +10,7 @@
 *.iml
 out
 gen
+.vs
 
 .venv
 .env
