@@ -16,3 +16,4 @@ def test_health_ok() -> None:
 def test_health_post_not_allowed() -> None:
     resp = client.post("/api/v1/health")
     assert resp.status_code == 405
+    assert resp.json()["error"]["code"] == "METHOD_NOT_ALLOWED"

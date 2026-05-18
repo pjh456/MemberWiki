@@ -120,8 +120,11 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # Windows 下使用 venv\Scripts\activate
 pip install -r requirements.txt
+python -m alembic -c alembic.ini.example upgrade head
 uvicorn main:app --reload
 ```
+
+数据库迁移细节请见 [数据库迁移与回滚规范 (docs/database/migration.md)](./docs/database/migration.md)。
 
 ## 🤝 协作与贡献规范
 
