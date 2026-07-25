@@ -12,6 +12,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from app.db.base import Base  # noqa: E402
+import app.models  # noqa: E402,F401 – eagerly load all models so Alembic discovers metadata
 
 config = context.config
 
