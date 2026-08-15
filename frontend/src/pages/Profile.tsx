@@ -3,7 +3,7 @@ import MarkdownEditor from "@/components/ui/MarkdownEditor";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
 import api from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth-context";
 
 export default function Profile() {
   const { user, loading: authLoading } = useAuth();
@@ -12,14 +12,14 @@ export default function Profile() {
   const [showExport, setShowExport] = React.useState(false);
   const [exportFilename, setExportFilename] = React.useState("个人简介");
   const [saving, setSaving] = React.useState(false);
-  const [loadingDraft, setLoadingDraft] = React.useState(true);
+  const [loadedDraftUserId, setLoadedDraftUserId] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     if (!user) return;
     api.get("/profiles/me/draft")
       .then(({ data }) => setBio(data.bio ?? ""))
       .catch(() => {})
-      .finally(() => setLoadingDraft(false));
+      .finally(() => setLoadedDraftUserId(user.id));
   }, [user]);
 
   async function handleSave() {
@@ -52,7 +52,7 @@ export default function Profile() {
     setShowExport(false);
   }
 
-  if (authLoading || loadingDraft) {
+  if (authLoading || (user && loadedDraftUserId !== user.id)) {
     return <div className="p-6 text-center text-muted-foreground">加载中...</div>;
   }
   if (!user) {

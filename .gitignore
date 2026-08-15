@@ -16,6 +16,7 @@ tmp/
 .ruff_cache/
 __pycache__/
 node_modules/
+package-lock.json
 *.pyc
 
 # Local Envs

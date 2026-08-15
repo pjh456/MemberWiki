@@ -1,32 +1,14 @@
-import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from "react"
+import { useState, useEffect, type ReactNode, useCallback } from "react"
 import api from "./api"
-
-interface User {
-  id: number
-  name: string
-  email?: string | null
-  phone?: string | null
-  avatar_url?: string | null
-  role?: string
-}
-
-interface AuthContextType {
-  user: User | null
-  loading: boolean
-  login: (account: string, password: string) => Promise<void>
-  logout: () => void
-}
-
-const AuthContext = createContext<AuthContextType>(null!)
+import { AuthContext, type User } from "./auth-context"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem("user_id")))
 
   useEffect(() => {
     const userId = localStorage.getItem("user_id")
     if (!userId) {
-      setLoading(false)
       return
     }
     api.get("/users/me")
@@ -57,5 +39,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </AuthContext.Provider>
   )
 }
-
-export const useAuth = () => useContext(AuthContext)

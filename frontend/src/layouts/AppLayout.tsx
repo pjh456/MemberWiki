@@ -1,6 +1,6 @@
 import { Outlet, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { useAuth } from "@/lib/auth"
+import { useAuth } from "@/lib/auth-context"
 import { useState } from "react"
 
 export default function MainLayout() {

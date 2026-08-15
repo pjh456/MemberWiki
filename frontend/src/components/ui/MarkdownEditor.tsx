@@ -1,6 +1,7 @@
 import React from "react";
 import MDEditor from "@uiw/react-md-editor";
 import type { ICommand } from "@uiw/react-md-editor";
+import type { TextAreaTextApi, TextState } from "@uiw/react-md-editor";
 import {
   getCommands,
   getExtraCommands,
@@ -42,7 +43,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
         icon: <span className="material-icons" style={{fontSize:16}}>image</span>,
         buttonProps: { 'aria-label': '上传图片' },
         // state 参数暂未用到
-        execute: async (_state, api) => {
+        execute: async (_state: TextState, api: TextAreaTextApi) => {
           const input = document.createElement('input');
           input.type = 'file';
           input.accept = 'image/*';
@@ -72,7 +73,7 @@ const MarkdownEditor: React.FC<MarkdownEditorProps> = ({
       <div className="w-full md:w-1/2">
         <MDEditor
           value={value}
-          onChange={v => v !== undefined && onChange(v)}
+          onChange={(v?: string) => v !== undefined && onChange(v)}
           preview={preview ? "edit" : "preview"}
           commands={toolbarOptions ?? getCommands()}
           extraCommands={[...extraCommands, ...getExtraCommands()]}
